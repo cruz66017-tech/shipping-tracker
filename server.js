@@ -8,7 +8,14 @@ const ADMIN_KEY = process.env.ADMIN_KEY || 'change-me';
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve index.html for the root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // In-memory data store — replace with a database in production
 let shipments = {
