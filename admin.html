@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Shipping Tracker</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { margin-top: 0; }
+    input, select { width: 100%; padding: 10px; margin: 6px 0 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+    button { padding: 12px 20px; background: #0b5cff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #0847cc; }
+    fieldset { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; padding: 16px; }
+    legend { font-weight: bold; padding: 0 8px; }
+    pre { background: #f0f0f0; padding: 12px; border-radius: 8px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Panel</h1>
+
+    <label>Admin Key</label>
+    <input id="adminKey" type="password" value="change-me" />
+
+    <fieldset>
+      <legend>Create Shipment</legend>
+      <label>Tracking Number</label>
+      <input id="createTracking" placeholder="e.g. 1Z999AA10123456784" />
+      <label>From</label>
+      <input id="createFrom" placeholder="Lagos, NG" />
+      <label>To</label>
+      <input id="createTo" placeholder="Abuja, NG" />
+      <label>Service</label>
+      <input id="createService" placeholder="Express" />
+      <label>Estimated Delivery</label>
+      <input id="createEta" type="date" />
+      <button onclick="createShipment()">Create Shipment</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Add Tracking Event</legend>
+      <label>Tracking Number</label>
+      <input id="eventTracking" placeholder="e.g. 1Z999AA10123456784" />
+      <label>Status</label>
+      <input id="eventStatus" placeholder="e.g. Arrived at facility" />
+      <label>Location</label>
+      <input id="eventLocation" placeholder="e.g. Lagos Hub, NG" />
+      <label>Timestamp (optional)</label>
+      <input id="eventTimestamp" type="datetime-local" />
+      <button onclick="addEvent()">Add Event</button>
+    </fieldset>
+
+    <pre id="output"></pre>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+
+    function show(data) {
+      output.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function createShipment() {
+      const key = document.getElementById('adminKey').value;
+      const body = {
+        trackingNumber: document.getElementById('createTracking').value.trim(),
+        from: document.getElementById('createFrom').value.trim(),
+        to: document.getElementById('createTo').value.trim(),
+        service: document.getElementById('createService').value.trim(),
+        estimatedDelivery: document.getElementById('createEta').value
+      };
+
+      const res = await fetch('/api/admin/shipments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': key
+        },
+        body: JSON.stringify(body)
+      });
+
+      show(await res.json());
+    }
+
+    async function addEvent() {
+      const key = document.getElementById('adminKey').value;
+      const body = {
+        trackingNumber: document.getElementById('eventTracking').value.trim(),
+        status: document.getElementById('eventStatus').value.trim(),
+        location: document.getElementById('eventLocation').value.trim(),
+        timestamp: document.getElementById('eventTimestamp').value || undefined
+      };
+
+      const res = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': key
+        },
+        body: JSON.stringify(body)
+      });
+
+      show(await res.json());
+    }
+  </script>
+</body>
+</html>
